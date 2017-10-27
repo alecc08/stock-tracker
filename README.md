@@ -1,2 +1,2 @@
-# stock-tracker
+# stock-tracker [![Build Status](https://travis-ci.org/alecc08/stock-tracker.svg?branch=master)](https://travis-ci.org/alecc08/stock-tracker) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1c819a5a49c54c2f8f1e6fb68e81bb8d)](https://www.codacy.com/app/alecc/stock-tracker?utm_source=github.com&utm_medium=referral&utm_content=alecc08/stock-tracker&utm_campaign=badger)
 NodeJS stock tracker. Read historical stock data from an API to store in local DB. Offer API to integrate data into a dashboard
