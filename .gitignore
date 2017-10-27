@@ -57,3 +57,8 @@ typings/
 # dotenv environment variables file
 .env
 
+# don't commit db file
+stocks.db
+
+# don't commit private API key
+apiKey
