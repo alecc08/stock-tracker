@@ -5,7 +5,11 @@ const sqlite3 = require("sqlite3").verbose();
 const config = require('./config');
 const moment = require('moment');
 const stockService = require('./lib/service/stockService');
+
 const express = require('express');
+var bodyParser = require('body-parser');
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
+
 const fs = require("fs");
 const apiKey = fs.readFileSync(config.apiKeyPath).toString();
 const db = new sqlite3.Database('./db/stocks.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
@@ -21,6 +25,17 @@ stockService.processStockData(db);
 
 let app = express();
 
-app.listen(process.env.PORT || 8080, function() {
-    console.log("Express server listening.");
+app.use(urlencodedParser); //Use to process POST params
+
+app.post("/stocks", function(req, res) {
+    console.log("Adding " + req.body.stockCode + " to DB.");
+    stockService.addStock(db, apiKey, req.body.stockCode);
+    res.status(200).send();
+});
+
+var server = app.listen(process.env.PORT || 8080, function() {
+    var host = server.address().address;
+    var port = server.address().port;
+    
+    console.log("Stock tracker listening at http://%s:%s", host, port);
 });
