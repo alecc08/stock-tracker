@@ -9,5 +9,10 @@ module.exports = {
                 volume INTEGER
             )
     `,
-    findAllInRange: 'SELECT * FROM stock'
+    findAllInRange: "SELECT * FROM stock",
+    findStockBySymbol: "SELECT * FROM stock WHERE symbol=",
+
+    insertStock: "INSERT INTO stock(symbol,timestamp,open,close,volume) VALUES ",
+
+    findExistingStockDates: "SELECT timestamp FROM stock WHERE symbol=?"
 };

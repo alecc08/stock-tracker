@@ -2,11 +2,11 @@
 
 const request = require("request");
 const sqlite3 = require("sqlite3").verbose();
-const config = require('./config');
-const moment = require('moment');
-const stockService = require('./lib/service/stockService');
+const config = require("./config");
+const moment = require("moment");
+const stockService = require("./lib/service/stockService");
 
-const express = require('express');
+const express = require("express");
 var bodyParser = require('body-parser');
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
@@ -27,8 +27,14 @@ let app = express();
 
 app.use(urlencodedParser); //Use to process POST params
 
+app.get("/stocks", function(req, res) {
+    let requestedStocks = req.params.stocks.split(",");
+    console.log(JSON.stringify(requestedStocks));
+    console.log("# of stocks requested:" + requestedStocks.length);
+});
+
 app.post("/stocks", function(req, res) {
-    console.log("Adding " + req.body.stockCode + " to DB.");
+    console.log("Updating " + req.body.stockCode);
     stockService.addStock(db, apiKey, req.body.stockCode);
     res.status(200).send();
 });

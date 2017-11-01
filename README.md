@@ -7,6 +7,7 @@ Using Alphavantage API to get data. You can get your own API key from them at ht
 
 ## API Endpoints:
 
+### Update a stock:
 ```
 POST
 /stocks
