@@ -17,3 +17,14 @@ POST
 
 Ex: POST /stocks stockCode:MSFT
 ```
+
+### Run sql on DB
+
+> To run some custom sql directly into the db, simply run the dbConsole.js file with node
+```
+node dbConsole
+```
+>Then you can run any sql statement followed by a semicolon to execute the query. E.g.
+```
+SELECT * FROM stock_history;
+```

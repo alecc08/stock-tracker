@@ -1,18 +1,58 @@
 "use strict";
 module.exports = {
     createStockTable: `CREATE TABLE IF NOT EXISTS 
-            stock (
-                symbol TEXT,
-                timestamp INTEGER,
-                open NUMBER,
-                close NUMBER,
-                volume INTEGER
-            )
+        stock_history (
+
+            stock       TEXT,
+            timestamp   INTEGER,
+            open        NUMBER,
+            close       NUMBER,
+            volume      INTEGER
+
+        )
     `,
-    findAllInRange: "SELECT * FROM stock",
-    findStockBySymbol: "SELECT * FROM stock WHERE symbol=",
 
-    insertStock: "INSERT INTO stock(symbol,timestamp,open,close,volume) VALUES ",
+    createAccountTable: ` CREATE TABLE IF NOT EXISTS
+        account(
 
-    findExistingStockDates: "SELECT timestamp FROM stock WHERE symbol=?"
+            id      INTEGER PRIMARY KEY,
+            name    TEXT
+
+        )
+    `,
+
+    createPortfolioTable: `CREATE TABLE IF NOT EXISTS
+        portfolio(
+
+            id          INTEGER PRIMARY KEY,
+            account_id  INTEGER,
+            type        TEXT,
+
+            FOREIGN KEY(account_id) REFERENCES account(id)
+        )
+    `,
+
+    createPortfolioStockTable: `CREATE TABLE IF NOT EXISTS
+        portfolio_stock(
+
+            portfolio_id            INTEGER,
+            stock                   TEXT,
+            purchase_timestamp      INTEGER,
+            purchase_qty            INTEGER,
+            purchase_price          NUMBER,
+
+            FOREIGN KEY(portfolio_id) REFERENCES portfolio(id)
+        )
+    `,
+    
+
+    findAllStocksIn: "SELECT * FROM stock_history WHERE stock IN ",
+
+    stocksWithinRange: " AND timestamp > ? AND timestamp < ?",
+
+    findStockBySymbol: "SELECT * FROM stock_history WHERE stock=?",
+
+    insertStock: "INSERT INTO stock_history(stock,timestamp,open,close,volume) VALUES ",
+
+    getStockDatesByCode: "SELECT timestamp FROM stock_history WHERE stock=?"
 };
