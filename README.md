@@ -1,5 +1,5 @@
 # stock-tracker [![Build Status](https://travis-ci.org/alecc08/stock-tracker.svg?branch=master)](https://travis-ci.org/alecc08/stock-tracker) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/f858fc237304469f812601459d3f3e29)](https://www.codacy.com/app/alecc/stock-tracker?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=alecc08/stock-tracker&amp;utm_campaign=Badge_Grade)
-NodeJS stock tracker. Read historical stock data from an API to store in local DB. Offer API to integrate data into a dashboard
+NodeJS stock tracker. Read historical stock data from an API to store in local DB. Offer API to integrate data into a dashboard. https://github.com/alecc08/stock-tracker-dashboard
 
 Using Alphavantage API to get data. You can get your own API key from them at https://www.alphavantage.co
 
@@ -14,6 +14,19 @@ POST
 
  - Params
    -stockCode
+
+Ex: POST /stocks stockCode:MSFT
+```
+
+### Get a stock:
+```
+GET
+/stocks
+
+ - Params
+   -stockCodes : Comma seperated list of stocks
+   -start : YYYY-MM-DD format date start
+   -end   : YYYY-MM-DD format date end
 
 Ex: POST /stocks stockCode:MSFT
 ```

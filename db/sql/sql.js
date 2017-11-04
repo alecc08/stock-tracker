@@ -48,7 +48,7 @@ module.exports = {
 
     findAllStocksIn: "SELECT * FROM stock_history WHERE stock IN ",
 
-    stocksWithinRange: " AND timestamp > ? AND timestamp < ?",
+    stocksWithinRange: " AND timestamp >= ? AND timestamp <= ? ORDER BY timestamp ASC",
 
     findStockBySymbol: "SELECT * FROM stock_history WHERE stock=?",
 
