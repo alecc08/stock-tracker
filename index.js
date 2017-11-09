@@ -4,6 +4,7 @@ const request = require("request");
 const sqlite3 = require("sqlite3").verbose();
 const config = require("./config");
 const stockService = require("./lib/service/stockService");
+const cron = require("node-cron");
 
 const express = require("express");
 var bodyParser = require('body-parser');
@@ -21,6 +22,24 @@ const db = new sqlite3.Database('./db/stocks.db', sqlite3.OPEN_READWRITE | sqlit
 stockService.processStockData(db);
 
 let app = express();
+
+// Run every day at 8pm
+cron.schedule("0 0 20 * * *", function() {
+    // Update all existing stocks
+    
+    stockService.getAllStocksInDb(db, function(stocks) {
+        if(stocks && stocks.length > 0) {
+            stocks.forEach(function(stock) {
+                // This part may get too intensive if tracking lots of stocks.
+                // Please be respectful of Alphavantage's suggestion of max requests per minute
+                console.log("Updating " + stock.stock);
+                stockService.updateStock(db, stock.stock);
+            });
+        } else {
+            console.log("No stocks to update");
+        }
+    });
+});
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");

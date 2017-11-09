@@ -23,6 +23,7 @@
   "dependencies": {
     "express": "^4.16.2",
     "moment": "^2.19.1",
+    "node-cron": "^1.2.1",
     "request": "^2.83.0",
     "sqlite3": "^3.1.13"
   }

@@ -44,6 +44,14 @@ module.exports = {
             FOREIGN KEY(portfolio_id) REFERENCES portfolio(id)
         )
     `,
+
+    createStockSplitTable: `CREATE TABLE IF NOT EXISTS
+        stock_split(
+            stock           TEXT,
+            factor          NUMBER,
+            timestamp       INTEGER
+        )
+    `,
     
 
     findAllStocksIn: "SELECT * FROM stock_history WHERE stock IN ",
@@ -54,5 +62,7 @@ module.exports = {
 
     insertStock: "INSERT INTO stock_history(stock,timestamp,open,close,volume) VALUES ",
 
-    getStockDatesByCode: "SELECT timestamp FROM stock_history WHERE stock=?"
+    getStockDatesByCode: "SELECT timestamp FROM stock_history WHERE stock=?",
+
+    getAllStockCodes: "SELECT DISTINCT stock FROM stock_history"
 };
