@@ -18,6 +18,9 @@ POST
 Ex: POST /stocks stockCode:MSFT
 ```
 
+### Auto update stocks
+There's a cron job that runs at your time of choosing to update all stocks in the database. You can change this time in ```config.js```
+
 ### Get a stock:
 ```
 GET
@@ -28,7 +31,26 @@ GET
    -start : YYYY-MM-DD format date start
    -end   : YYYY-MM-DD format date end
 
+Ex: GET /stocks stockCodes:MSFT,FB,GOOG start:2017-01-01 end:2017-02-02
+```
+
+### Get an account:
+```
+GET
+/accounts
+
+ - Params
+   -accountId 
+
 Ex: POST /stocks stockCode:MSFT
+```
+
+### Create an account:
+```
+POST
+/accounts
+ - Params
+    -accountName
 ```
 
 ### Run sql on DB

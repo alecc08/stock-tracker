@@ -22,7 +22,7 @@ stockService.processStockData(db);
 let app = express();
 
 // Run every day at 8pm
-cron.schedule("0 0 20 * * *", function() {
+cron.schedule(config.cronSchedule, function() {
     // Update all existing stocks
     
     stockService.getAllStocksInDb(db, function(stocks) {
