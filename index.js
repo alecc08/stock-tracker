@@ -8,8 +8,6 @@ const cron = require("node-cron");
 
 const express = require("express");
 var bodyParser = require('body-parser');
-var urlencodedParser = bodyParser.urlencoded({ extended: false });
-
 
 const db = new sqlite3.Database('./db/stocks.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
     if (err) {
@@ -29,11 +27,16 @@ cron.schedule("0 0 20 * * *", function() {
     
     stockService.getAllStocksInDb(db, function(stocks) {
         if(stocks && stocks.length > 0) {
+            let counter = 0;
+            const WAIT_BETWEEN_CALLS = 1000; // 1 second
             stocks.forEach(function(stock) {
                 // This part may get too intensive if tracking lots of stocks.
                 // Please be respectful of Alphavantage's suggestion of max requests per minute
-                console.log("Updating " + stock.stock);
-                stockService.updateStock(db, stock.stock);
+                setTimeout(function() {
+                    console.log("Updating " + stock.stock);
+                    stockService.updateStock(db, stock.stock);
+                }, counter * WAIT_BETWEEN_CALLS);
+                counter++;
             });
         } else {
             console.log("No stocks to update");
@@ -47,7 +50,8 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.use(urlencodedParser); //Use to process POST params
+app.use(bodyParser.urlencoded({ extended: true })); //Use to process POST params
+app.use(bodyParser.json()); //Use to process POST params
 
 app.get("/stocks", function(req, res) {
     if(req.query.stockCodes) {
@@ -76,6 +80,72 @@ app.post("/stocks", function(req, res) {
     }
     
 });
+
+app.get("/accounts", function(req, res) {
+    stockService.getAccounts(db, function(accounts) {
+        res.status(200).send(accounts);
+    });
+   
+    
+});
+
+app.post("/accounts", function(req, res) {
+    console.log(req.body);
+    if(req.body.accountName) {
+        stockService.addAccount(db, req.body.accountName, function(err, account) {
+            if(!err) {
+                res.status(200).send({success:true});
+            } else {
+                res.status(400).send({});
+            }
+        });
+        
+    } else {
+        res.status(400).send({error:"No name specified"});
+    }
+    
+});
+
+app.delete("/accounts", function(req, res) {
+
+    if(req.query.accountId) {
+        console.log("Deleting account: " + req.query.accountId);
+        stockService.deleteAccount(db, req.query.accountId);
+        res.status(200).send({});
+    } else {
+        res.status(400).send("Please specify an accountName");
+    }
+});
+
+app.post("/portfolios", function(req, res) {
+    console.log(req.body);
+    if(req.body.accountName) {
+        stockService.addAccount(db, req.body.accountName, function(err, account) {
+            if(!err) {
+                res.status(200).send({success:true});
+            } else {
+                res.status(400).send({});
+            }
+        });
+        
+    } else {
+        res.status(400).send({error:"No name specified"});
+    }
+    
+});
+
+app.delete("/portfolios", function(req, res) {
+
+    if(req.query.accountName) {
+        console.log("Deleting account: " + req.body.accountName);
+        stockService.deleteAccount(db, req.body.accountName);
+        res.status(200).send({});
+    } else {
+        res.status(400).send("Please specify an accountName");
+    }
+});
+
+
 
 var server = app.listen(process.env.PORT || 8080, function() {
     var port = server.address().port;

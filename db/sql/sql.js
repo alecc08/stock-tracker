@@ -24,7 +24,7 @@ module.exports = {
     createPortfolioTable: `CREATE TABLE IF NOT EXISTS
         portfolio(
 
-            id          INTEGER PRIMARY KEY,
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
             account_id  INTEGER,
             type        TEXT,
 
@@ -55,14 +55,17 @@ module.exports = {
     
 
     findAllStocksIn: "SELECT * FROM stock_history WHERE stock IN ",
-
     stocksWithinRange: " AND timestamp >= ? AND timestamp <= ? ORDER BY timestamp ASC",
-
     findStockBySymbol: "SELECT * FROM stock_history WHERE stock=?",
-
     insertStock: "INSERT INTO stock_history(stock,timestamp,open,close,volume) VALUES ",
-
     getStockDatesByCode: "SELECT timestamp FROM stock_history WHERE stock=?",
+    getAllStockCodes: "SELECT DISTINCT stock FROM stock_history",
 
-    getAllStockCodes: "SELECT DISTINCT stock FROM stock_history"
+
+    insertAccount: "INSERT INTO account(name) VALUES (?)",
+    getAccounts: "SELECT * from account",
+    deleteAccountById: "DELETE FROM account WHERE id=?",
+
+    insertPortfolio: "INSERT INTO portfolio(account_id, type) VALUES(?,?)",
+    deletePortfolioById: "DELETE FROM portfolio WHERE id=?"
 };
