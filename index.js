@@ -147,6 +147,23 @@ app.post("/portfolios", function(req, res) {
     
 });
 
+app.put("/portfolios", function(req, res) {
+    console.log(req.body);
+    if(req.body.portfolio) {
+        stockService.updatePortfolio(db, req.body.portfolio, function(err, account) {
+            if(!err) {
+                res.status(200).send({success:true});
+            } else {
+                res.status(400).send({});
+            }
+        });
+        
+    } else {
+        res.status(400).send({error:"No portfolio to update"});
+    }
+    
+});
+
 app.delete("/portfolios", function(req, res) {
 
     if(req.query.portfolioId) {
