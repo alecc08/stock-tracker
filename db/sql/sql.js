@@ -64,7 +64,8 @@ module.exports = {
 
     createEarningsTable: `CREATE TABLE IF NOT EXISTS
         earnings(
-            total       NUMBER
+            total       NUMBER,
+            timestamp   INTEGER
         )
     `,
     
