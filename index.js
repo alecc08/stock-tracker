@@ -16,12 +16,11 @@ const db = new sqlite3.Database('./db/stocks.db', sqlite3.OPEN_READWRITE | sqlit
     console.log('Connected to the stats database.');
 });
 
-
-stockService.processStockData(db);
+stockService.createTables(db);
 
 let app = express();
 
-// Run every day at 8pm
+// Schedule the stock updates
 cron.schedule(config.cronSchedule, function() {
     // Update all existing stocks
     
@@ -47,6 +46,7 @@ cron.schedule(config.cronSchedule, function() {
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
     next();
 });
 
@@ -82,11 +82,10 @@ app.post("/stocks", function(req, res) {
 });
 
 app.get("/accounts", function(req, res) {
-    stockService.getAccounts(db, function(accounts) {
+    stockService.getAccountsWithPortfolios(db, function(accounts) {
+        //Also get their portfolios
         res.status(200).send(accounts);
     });
-   
-    
 });
 
 app.post("/accounts", function(req, res) {
@@ -107,7 +106,6 @@ app.post("/accounts", function(req, res) {
 });
 
 app.delete("/accounts", function(req, res) {
-
     if(req.query.accountId) {
         console.log("Deleting account: " + req.query.accountId);
         stockService.deleteAccount(db, req.query.accountId);
@@ -117,10 +115,25 @@ app.delete("/accounts", function(req, res) {
     }
 });
 
+app.get("/portfolios", function(req, res) {
+    if(req.query.portfolioId) {
+        stockService.getPortfolio(db, req.query.portfolioId, function(err, portfolio) {
+            if(!err) {
+                res.status(200).send(portfolio);
+            } else {
+                res.status(400).send({});
+            }
+        });
+        
+    } else {
+        res.status(400).send({error:"No portfolioId specified"});
+    }
+});
+
 app.post("/portfolios", function(req, res) {
     console.log(req.body);
-    if(req.body.accountName) {
-        stockService.addAccount(db, req.body.accountName, function(err, account) {
+    if(req.body.accountId && req.body.portfolioName) {
+        stockService.addPortfolio(db, req.body.portfolioName, req.body.accountId, function(err, account) {
             if(!err) {
                 res.status(200).send({success:true});
             } else {
@@ -129,19 +142,19 @@ app.post("/portfolios", function(req, res) {
         });
         
     } else {
-        res.status(400).send({error:"No name specified"});
+        res.status(400).send({error:"No name or accountId specified"});
     }
     
 });
 
 app.delete("/portfolios", function(req, res) {
 
-    if(req.query.accountName) {
-        console.log("Deleting account: " + req.body.accountName);
-        stockService.deleteAccount(db, req.body.accountName);
+    if(req.query.portfolioId) {
+        console.log("Deleting portfolio: " + req.query.portfolioId);
+        stockService.deletePortfolio(db, req.query.portfolioId);
         res.status(200).send({});
     } else {
-        res.status(400).send("Please specify an accountName");
+        res.status(400).send("Please specify a portfolioId");
     }
 });
 

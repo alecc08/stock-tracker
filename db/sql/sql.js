@@ -13,7 +13,7 @@ module.exports = {
     `,
 
     createAccountTable: ` CREATE TABLE IF NOT EXISTS
-        account(
+        accounts(
 
             id      INTEGER PRIMARY KEY,
             name    TEXT
@@ -22,7 +22,7 @@ module.exports = {
     `,
 
     createPortfolioTable: `CREATE TABLE IF NOT EXISTS
-        portfolio(
+        portfolios(
 
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
             account_id  INTEGER,
@@ -33,8 +33,8 @@ module.exports = {
     `,
 
     createPortfolioStockTable: `CREATE TABLE IF NOT EXISTS
-        portfolio_stock(
-
+        portfolio_stocks(
+            id                      INTEGER PRIMARY KEY AUTOINCREMENT,
             portfolio_id            INTEGER,
             stock                   TEXT,
             purchase_timestamp      INTEGER,
@@ -46,10 +46,25 @@ module.exports = {
     `,
 
     createStockSplitTable: `CREATE TABLE IF NOT EXISTS
-        stock_split(
+        stock_splits(
             stock           TEXT,
             factor          NUMBER,
             timestamp       INTEGER
+        )
+    `,
+
+    createExchangeRateTable: `CREATE TABLE IF NOT EXISTS
+        exchange_rates(
+            currencyFrom          TEXT,
+            currencyTo            TEXT,
+            ratio                 NUMBER,
+            timestamp             INTEGER
+        )
+    `,
+
+    createEarningsTable: `CREATE TABLE IF NOT EXISTS
+        earnings(
+            total       NUMBER
         )
     `,
     
@@ -62,10 +77,16 @@ module.exports = {
     getAllStockCodes: "SELECT DISTINCT stock FROM stock_history",
 
 
-    insertAccount: "INSERT INTO account(name) VALUES (?)",
-    getAccounts: "SELECT * from account",
-    deleteAccountById: "DELETE FROM account WHERE id=?",
+    insertAccount: "INSERT INTO accounts(name) VALUES (?)",
+    getAccounts: "SELECT * from accounts",
+    getAccountsWithPortfolios: "SELECT a.id, a.name, p.type, p.id as portfolioId FROM accounts a LEFT JOIN portfolios p ON a.id = p.account_id;",
+    deleteAccountById: "DELETE FROM accounts WHERE id=?",
 
-    insertPortfolio: "INSERT INTO portfolio(account_id, type) VALUES(?,?)",
-    deletePortfolioById: "DELETE FROM portfolio WHERE id=?"
+    getPortfolioWithStocks: "SELECT p.type, p.id, s.stock, s.purchase_timestamp, s.purchase_qty, s.purchase_price, s.id as stock_id FROM portfolios p LEFT JOIN portfolio_stocks s ON s.portfolio_id = p.id WHERE p.id = ?",
+    insertPortfolio: "INSERT INTO portfolios(type, account_id) VALUES(?,?)",
+    deletePortfolioById: "DELETE FROM portfolios WHERE id=?",
+
+    insertPortfolioStock: "INSERT INTO portfolio_stocks(portfolio_id, stock, purchase_qty, purchase_price, purchase_timestamp) VALUES(?,?,?,?,?)",
+    updatePortfolioStock: "UPDATE portfolio_stocks SET purchase_qty = ?, purchase_price = ?, purchase_timestamp = ? WHERE id = ?",
+    deletePortfolioStock: "DELETE FROM portfolio_stocks WHERE id = ?"
 };
