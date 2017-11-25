@@ -9,14 +9,7 @@ const cron = require("node-cron");
 const express = require("express");
 var bodyParser = require('body-parser');
 
-const db = new sqlite3.Database('./db/stocks.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
-    if (err) {
-      console.error(err.message);
-    }
-    console.log('Connected to the stats database.');
-});
-
-stockService.createTables(db);
+stockService.initDB();
 
 let app = express();
 
@@ -24,7 +17,7 @@ let app = express();
 cron.schedule(config.cronSchedule, function() {
     // Update all existing stocks
     
-    stockService.getAllStocksInDb(db, function(stocks) {
+    stockService.getAllStocksInDb(function(stocks) {
         if(stocks && stocks.length > 0) {
             let counter = 0;
             const WAIT_BETWEEN_CALLS = 1000; // 1 second
@@ -32,8 +25,8 @@ cron.schedule(config.cronSchedule, function() {
                 // This part may get too intensive if tracking lots of stocks.
                 // Please be respectful of Alphavantage's suggestion of max requests per minute
                 setTimeout(function() {
-                    console.log("Updating " + stock.stock);
-                    stockService.updateStock(db, stock.stock);
+                    console.log("Updating " + stock.symbol);
+                    stockService.updateStock(stock.symbol);
                 }, counter * WAIT_BETWEEN_CALLS);
                 counter++;
             });
@@ -60,7 +53,7 @@ app.get("/stocks", function(req, res) {
         let endDate = req.query.end;
 
         let stockData = [];
-        stockService.findAllForRange(db, requestedStocks, startDate, endDate, function(data) {
+        stockService.findAllForRange(requestedStocks, startDate, endDate, function(data) {
             res.status(200).send(data);
         });
         
@@ -73,7 +66,7 @@ app.get("/stocks", function(req, res) {
 app.post("/stocks", function(req, res) {
     if(req.body.stockCode) {
         console.log("Updating " + req.body.stockCode);
-        stockService.updateStock(db, req.body.stockCode);
+        stockService.updateStock(req.body.stockCode);
         res.status(200).send();
     } else {
         res.status(400).send("Please specify stockCode");
@@ -82,7 +75,7 @@ app.post("/stocks", function(req, res) {
 });
 
 app.get("/accounts", function(req, res) {
-    stockService.getAccountsWithPortfolios(db, function(accounts) {
+    stockService.getAccountsWithPortfolios(function(accounts) {
         //Also get their portfolios
         res.status(200).send(accounts);
     });
@@ -91,12 +84,8 @@ app.get("/accounts", function(req, res) {
 app.post("/accounts", function(req, res) {
     console.log(req.body);
     if(req.body.accountName) {
-        stockService.addAccount(db, req.body.accountName, function(err, account) {
-            if(!err) {
-                res.status(200).send({success:true});
-            } else {
-                res.status(400).send({});
-            }
+        stockService.addAccount(req.body.accountName, function(account) {
+            res.status(200).send({success:true});
         });
         
     } else {
@@ -108,7 +97,7 @@ app.post("/accounts", function(req, res) {
 app.delete("/accounts", function(req, res) {
     if(req.query.accountId) {
         console.log("Deleting account: " + req.query.accountId);
-        stockService.deleteAccount(db, req.query.accountId);
+        stockService.deleteAccount(req.query.accountId);
         res.status(200).send({});
     } else {
         res.status(400).send("Please specify an accountName");
@@ -117,14 +106,10 @@ app.delete("/accounts", function(req, res) {
 
 app.get("/portfolios", function(req, res) {
     if(req.query.portfolioId) {
-        stockService.getPortfolio(db, req.query.portfolioId, function(err, portfolio) {
-            if(!err) {
-                res.status(200).send(portfolio);
-            } else {
-                res.status(400).send({});
-            }
+
+        stockService.getPortfolio(req.query.portfolioId, function(portfolio) {
+            res.status(200).send(portfolio);
         });
-        
     } else {
         res.status(400).send({error:"No portfolioId specified"});
     }
@@ -133,12 +118,8 @@ app.get("/portfolios", function(req, res) {
 app.post("/portfolios", function(req, res) {
     console.log(req.body);
     if(req.body.accountId && req.body.portfolioName) {
-        stockService.addPortfolio(db, req.body.portfolioName, req.body.accountId, function(err, account) {
-            if(!err) {
-                res.status(200).send({success:true});
-            } else {
-                res.status(400).send({});
-            }
+        stockService.addPortfolio(req.body.portfolioName, req.body.accountId, function(account) {
+            res.status(200).send({success:true});
         });
         
     } else {
@@ -150,25 +131,19 @@ app.post("/portfolios", function(req, res) {
 app.put("/portfolios", function(req, res) {
     console.log(req.body);
     if(req.body.portfolio) {
-        stockService.updatePortfolio(db, req.body.portfolio, function(err, account) {
-            if(!err) {
-                res.status(200).send({success:true});
-            } else {
-                res.status(400).send({});
-            }
+        stockService.updatePortfolio(req.body.portfolio, function(account) {
+            res.status(200).send({success:true});
         });
-        
     } else {
         res.status(400).send({error:"No portfolio to update"});
     }
-    
 });
 
 app.delete("/portfolios", function(req, res) {
 
     if(req.query.portfolioId) {
         console.log("Deleting portfolio: " + req.query.portfolioId);
-        stockService.deletePortfolio(db, req.query.portfolioId);
+        stockService.deletePortfolio(req.query.portfolioId);
         res.status(200).send({});
     } else {
         res.status(400).send("Please specify a portfolioId");
