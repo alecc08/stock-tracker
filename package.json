@@ -20,13 +20,6 @@
     "url": "https://github.com/alecc08/stock-tracker/issues"
   },
   "homepage": "https://github.com/alecc08/stock-tracker#readme",
-  "dependencies": {
-    "bluebird": "^3.5.1",
-    "express": "^4.16.2",
-    "lodash": "^4.17.4",
-    "moment": "^2.19.1",
-    "node-cron": "^1.2.1",
-    "request": "^2.83.0",
     "sequelize": "^4.22.8",
     "sqlite3": "^3.1.13"
   }
