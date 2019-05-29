@@ -27,7 +27,7 @@
     "moment": "^2.19.1",
     "node-cron": "^1.2.1",
     "request": "^2.83.0",
-    "sequelize": "^4.22.8",
+    "sequelize": "^5.3.0",
     "sqlite3": "^3.1.13"
   }
 }
